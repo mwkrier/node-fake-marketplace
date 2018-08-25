@@ -8,7 +8,7 @@ var connection = mysql.createConnection({
     port: 3306,
     user: "root",
     password: 122984,
-    database: "bamazon_db",
+    database: "bamazon_db"
 });
 
 connection.connect(function(error){
@@ -17,7 +17,7 @@ connection.connect(function(error){
     } else {
         console.log("Connected to database as id " + connection.threadId);
         printProducts();
-        orderForm();
+        connection.end();
     }
 })
 
@@ -45,16 +45,29 @@ inquirer.prompt([
 ]).then(function(order){
     console.log("Product Ordered is " + order.productId + ".\n" + "Number Orderded is " + order.howMany + "." );
 
-    var query = connection.query (
-        "update products set ? where ?", [
+   connection.query (
+        "UPDATE products SET ? WHERE ?", [
             {
-                stock:// subtract amount order from stock 
+                STOCK = STOCK - order.howMany,
             },
             {
                 id: order.productId,
             }
         ]
-    )
+    );
+
+    var query1 = connection.query (
+        "SELECT price FROM ?",
+        {
+            id: order.productId,
+        }
+    );
+   
+    var totalPrice = query1 * order.howMany;
+
+    console.log("Your Total is " + totalPrice + ".");
 });
 };
+
+
 
